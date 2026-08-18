@@ -606,7 +606,8 @@
         <h3>1.2 Fluxo Resumido</h3>
         <ol class="lista">
           <li>O usuário se autentica normalmente no sistema do parceiro.</li>
-          <li>O sistema do parceiro gera um token JWT assinado, identificando o usuário.</li>
+          <li>Em algum momento posterior, o usuário clica em uma opção do tipo "Acessar Plataforma Semente" dentro do sistema do parceiro.</li>
+          <li>Esse clique aciona o sistema do parceiro a gerar um token JWT assinado, identificando o usuário.</li>
           <li>O parceiro entrega esse token ao navegador do usuário, que faz a chamada POST ao endpoint de SSO da Semente (por exemplo, via um formulário HTML que se auto-submete).</li>
           <li>A Semente valida o token.</li>
           <li>Se válido, a Semente autentica o usuário, define um cookie de sessão no navegador e redireciona o navegador diretamente para a Plataforma Semente, já autenticada.</li>
@@ -623,10 +624,10 @@
 
       <div class="subsecao" id="diagrama-fluxo">
         <h3>1.3 Diagrama do Fluxo</h3>
-        <p>O diagrama abaixo ilustra a sequência completa da integração. Note que, a partir do passo 3, quem conversa com a Semente é o navegador do usuário — não o back-end do parceiro:</p>
+        <p>O diagrama abaixo ilustra a sequência completa da integração. Note que, a partir do passo 5, quem conversa com a Semente é o navegador do usuário — não o back-end do parceiro:</p>
 
         <div class="diagrama-wrap">
-          <svg viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de sequência da integração SSO com 8 passos entre Usuário, Sistema do Parceiro e Plataforma Semente. A partir do passo 3, a comunicação com a Semente ocorre pelo navegador do usuário, e o redirecionamento final (passo 7) vai da Semente direto para o usuário">
+          <svg viewBox="0 0 1000 840" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de sequência da integração SSO com 9 passos entre Usuário, Sistema do Parceiro e Plataforma Semente. A partir do passo 5, a comunicação com a Semente ocorre pelo navegador do usuário, e o redirecionamento final (passo 8) vai da Semente direto para o usuário">
             <defs>
               <marker id="seta-cinza" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill="#1A2E3D"/>
@@ -652,9 +653,9 @@
             </g>
 
             <!-- Linhas de vida -->
-            <line x1="160" y1="70" x2="160" y2="700" stroke="#C9C3B4" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <line x1="500" y1="70" x2="500" y2="700" stroke="#C9C3B4" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <line x1="840" y1="70" x2="840" y2="700" stroke="#C9C3B4" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <line x1="160" y1="70" x2="160" y2="660" stroke="#C9C3B4" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <line x1="500" y1="70" x2="500" y2="660" stroke="#C9C3B4" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <line x1="840" y1="70" x2="840" y2="660" stroke="#C9C3B4" stroke-width="1.5" stroke-dasharray="4,4"/>
 
             <g font-family="Poppins, sans-serif" font-size="14.5" fill="#333233">
 
@@ -663,54 +664,58 @@
               <text x="328" y="102" text-anchor="middle">1. Login no sistema do parceiro</text>
 
               <!-- Passo 2 -->
-              <rect x="400" y="130" width="200" height="62" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
-              <text x="500" y="153" text-anchor="middle" font-weight="700">2. Gera JWT</text>
-              <text x="500" y="172" text-anchor="middle" font-size="12.5" fill="#6B6B6A">(assinado com</text>
-              <text x="500" y="187" text-anchor="middle" font-size="12.5" fill="#6B6B6A">o secret HS256)</text>
+              <line x1="160" y1="152" x2="494" y2="152" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
+              <text x="328" y="142" text-anchor="middle">2. Clica em "Acessar Plataforma Semente"</text>
 
               <!-- Passo 3 -->
-              <line x1="500" y1="222" x2="166" y2="222" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
-              <text x="328" y="212" text-anchor="middle">3. Entrega formulário (auto-submit) com o JWT</text>
+              <rect x="400" y="180" width="200" height="62" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
+              <text x="500" y="203" text-anchor="middle" font-weight="700">3. Gera JWT</text>
+              <text x="500" y="222" text-anchor="middle" font-size="12.5" fill="#6B6B6A">(assinado com</text>
+              <text x="500" y="237" text-anchor="middle" font-size="12.5" fill="#6B6B6A">o secret HS256)</text>
 
               <!-- Passo 4 -->
-              <line x1="160" y1="270" x2="834" y2="270" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
-              <text x="500" y="260" text-anchor="middle">4. POST /sso_custom — enviado pelo navegador</text>
-              <text x="500" y="290" text-anchor="middle" font-size="12.5" fill="#6B6B6A" font-family="'JetBrains Mono', monospace">{ "token": "&lt;JWT&gt;" }</text>
+              <line x1="500" y1="272" x2="166" y2="272" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
+              <text x="328" y="262" text-anchor="middle">4. Entrega formulário (auto-submit) com o JWT</text>
 
               <!-- Passo 5 -->
-              <rect x="730" y="310" width="220" height="150" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
-              <text x="840" y="336" text-anchor="middle" font-weight="700">5. Validações</text>
-              <text x="840" y="358" text-anchor="middle" font-size="12.5">• Assinatura (secret)</text>
-              <text x="840" y="378" text-anchor="middle" font-size="12.5">• Audience / Issuer</text>
-              <text x="840" y="398" text-anchor="middle" font-size="12.5">• Expiração (exp)</text>
-              <text x="840" y="418" text-anchor="middle" font-size="12.5">• Reuso do jti</text>
-              <text x="840" y="438" text-anchor="middle" font-size="12" fill="#6B6B6A">(replay)</text>
+              <line x1="160" y1="322" x2="834" y2="322" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
+              <text x="500" y="312" text-anchor="middle">5. POST /sso_custom — enviado pelo navegador</text>
+              <text x="500" y="342" text-anchor="middle" font-size="12.5" fill="#6B6B6A" font-family="'JetBrains Mono', monospace">{ "token": "&lt;JWT&gt;" }</text>
 
               <!-- Passo 6 -->
-              <rect x="720" y="480" width="240" height="58" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
-              <text x="840" y="504" text-anchor="middle" font-weight="700" font-size="13.5">6. Autentica e define cookie</text>
-              <text x="840" y="524" text-anchor="middle" font-size="12" fill="#6B6B6A">de sessão (Set-Cookie)</text>
+              <rect x="730" y="362" width="220" height="150" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
+              <text x="840" y="388" text-anchor="middle" font-weight="700">6. Validações</text>
+              <text x="840" y="410" text-anchor="middle" font-size="12.5">• Assinatura (secret)</text>
+              <text x="840" y="430" text-anchor="middle" font-size="12.5">• Audience / Issuer</text>
+              <text x="840" y="450" text-anchor="middle" font-size="12.5">• Expiração (exp)</text>
+              <text x="840" y="470" text-anchor="middle" font-size="12.5">• Reuso do jti</text>
+              <text x="840" y="490" text-anchor="middle" font-size="12" fill="#6B6B6A">(replay)</text>
 
               <!-- Passo 7 -->
-              <line x1="840" y1="568" x2="166" y2="568" stroke="#55782C" stroke-width="2" marker-end="url(#seta-verde)"/>
-              <text x="500" y="558" text-anchor="middle">7. 302 Found + Set-Cookie — redireciona o navegador</text>
+              <rect x="720" y="532" width="240" height="58" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
+              <text x="840" y="556" text-anchor="middle" font-weight="700" font-size="13.5">7. Autentica e define cookie</text>
+              <text x="840" y="576" text-anchor="middle" font-size="12" fill="#6B6B6A">de sessão (Set-Cookie)</text>
 
               <!-- Passo 8 -->
-              <line x1="160" y1="604" x2="834" y2="604" stroke="#6B6B6A" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#seta-cinza-clara)"/>
-              <text x="500" y="594" text-anchor="middle">8. Usuário navega na Plataforma Semente, já autenticado</text>
+              <line x1="840" y1="620" x2="166" y2="620" stroke="#55782C" stroke-width="2" marker-end="url(#seta-verde)"/>
+              <text x="500" y="610" text-anchor="middle">8. 302 Found + Set-Cookie — redireciona o navegador</text>
+
+              <!-- Passo 9 -->
+              <line x1="160" y1="650" x2="834" y2="650" stroke="#6B6B6A" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#seta-cinza-clara)"/>
+              <text x="500" y="640" text-anchor="middle">9. Usuário navega na Plataforma Semente, já autenticado</text>
             </g>
 
             <!-- Caixa de nota -->
-            <rect x="40" y="636" width="920" height="120" rx="10" fill="#FBF1DA" stroke="#F4BB2F" stroke-width="1.5"/>
-            <text x="65" y="668" font-family="Poppins, sans-serif" font-size="14.5" font-weight="700" fill="#333233">Se alguma validação do passo 5 falhar:</text>
-            <text x="65" y="696" font-family="Poppins, sans-serif" font-size="14" fill="#333233">
+            <rect x="40" y="685" width="920" height="120" rx="10" fill="#FBF1DA" stroke="#F4BB2F" stroke-width="1.5"/>
+            <text x="65" y="717" font-family="Poppins, sans-serif" font-size="14.5" font-weight="700" fill="#333233">Se alguma validação do passo 6 falhar:</text>
+            <text x="65" y="745" font-family="Poppins, sans-serif" font-size="14" fill="#333233">
               <tspan x="65" dy="0">a Semente responde com erro (401 ou 400) diretamente ao navegador do usuário — não ao</tspan>
               <tspan x="65" dy="22">parceiro. Nenhum usuário é autenticado e o fluxo é interrompido ali.</tspan>
             </text>
           </svg>
         </div>
 
-        <p>Caso qualquer validação do passo 5 falhe (assinatura, audience/issuer, expiração ou reuso do jti), a Semente responde com erro diretamente ao navegador do usuário — a página intermediária do parceiro (a mesma que fez o POST no passo 4) precisa estar preparada para tratar essa resposta de erro.</p>
+        <p>Caso qualquer validação do passo 6 falhe (assinatura, audience/issuer, expiração ou reuso do jti), a Semente responde com erro diretamente ao navegador do usuário — a página intermediária do parceiro (a mesma que fez o POST no passo 5) precisa estar preparada para tratar essa resposta de erro.</p>
       </div>
     </section>
 
