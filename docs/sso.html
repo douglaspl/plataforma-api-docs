@@ -19,6 +19,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
 
 <style>
@@ -567,6 +568,7 @@
             <li><a href="#url-metodo" data-nav>4.1 URL e Método</a></li>
             <li><a href="#formato-requisicao" data-nav>4.2 Formato da Requisição</a></li>
             <li><a href="#respostas" data-nav>4.3 Respostas</a></li>
+            <li><a href="#pagina-redirecionamento" data-nav>4.4 Página de Redirecionamento</a></li>
           </ul>
         </li>
         <li><a href="#exemplos-jwt" data-nav>5. Exemplos de Geração do JWT</a>
@@ -680,7 +682,7 @@
               <!-- Passo 5 -->
               <line x1="160" y1="322" x2="834" y2="322" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
               <text x="500" y="312" text-anchor="middle">5. POST /sso_custom — enviado pelo navegador</text>
-              <text x="500" y="342" text-anchor="middle" font-size="12.5" fill="#6B6B6A" font-family="'JetBrains Mono', monospace">{ "token": "&lt;JWT&gt;" }</text>
+              <text x="500" y="342" text-anchor="middle" font-size="12.5" fill="#6B6B6A" font-family="'JetBrains Mono', monospace">token=&lt;JWT&gt; (form-urlencoded)</text>
 
               <!-- Passo 6 -->
               <rect x="730" y="362" width="220" height="150" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
@@ -804,7 +806,7 @@
 
       <div class="subsecao" id="formato-requisicao">
         <h3>4.2 Formato da Requisição</h3>
-        <p>O corpo da requisição deve ser um JSON contendo o token no campo <code>token</code>. Na prática, o parceiro costuma gerar uma página HTML intermediária cujo formulário se auto-submete via POST, carregando o token para o navegador do usuário fazer a chamada:</p>
+        <p>O corpo da requisição deve conter o token no campo <code>token</code>, como <code>application/x-www-form-urlencoded</code> — o mesmo formato que um <code>&lt;form&gt;</code> HTML nativo envia. Esse formato (em vez de JSON) é proposital: é o que permite que a requisição seja feita por uma navegação real do navegador (um formulário que se auto-submete), sem depender de JavaScript assíncrono (<code>fetch</code>/XHR), que esbarraria em CORS e em restrições de cookie de terceiros. Veja o exemplo completo na <a href="#pagina-redirecionamento">seção 4.4</a>.</p>
         <div class="code-block" data-copy>
           <div class="code-header">
             <span>Requisição</span>
@@ -812,11 +814,9 @@
           </div>
           <pre><code class="language-http">POST /api/v0/accounts/sso_custom HTTP/1.1
 Host: integracao.sementeeducacao.com.br
-Content-Type: application/json
+Content-Type: application/x-www-form-urlencoded
 
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2FvLnNpbHZhIiwi..."
-}</code></pre>
+token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2FvLnNpbHZhIiwi...</code></pre>
         </div>
       </div>
 
@@ -860,6 +860,41 @@ Content-Type: application/json
               <tr><td class="http-status s400">400</td><td>Requisição inválida</td><td>Corpo da requisição malformado ou claims obrigatórias ausentes.</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div class="subsecao" id="pagina-redirecionamento">
+        <h3>4.4 Página de Redirecionamento (Exemplo)</h3>
+        <p>Abaixo, um exemplo completo da página intermediária que o back-end do parceiro deve gerar e devolver ao navegador do usuário logo após o clique em "Acessar Plataforma Semente" (passo 2 do <a href="#diagrama-fluxo">diagrama</a>). O back-end preenche o campo <code>value</code> com o JWT recém-gerado; o formulário se auto-submete assim que a página carrega, e o <code>&lt;noscript&gt;</code> garante um botão manual como alternativa para o raro caso de JavaScript desabilitado:</p>
+        <div class="code-block" data-copy>
+          <div class="code-header">
+            <span>redirecionamento.html</span>
+            <button class="copy-btn" data-copy-btn>Copiar</button>
+          </div>
+          <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Redirecionando para a Plataforma Semente...&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;p&gt;Redirecionando, aguarde…&lt;/p&gt;
+
+  &lt;form id="sso-form" method="POST" action="https://integracao.sementeeducacao.com.br/api/v0/accounts/sso_custom"&gt;
+    &lt;input type="hidden" name="token" value="SEU_JWT_GERADO_AQUI"&gt;
+    &lt;noscript&gt;
+      &lt;button type="submit"&gt;Clique aqui para continuar&lt;/button&gt;
+    &lt;/noscript&gt;
+  &lt;/form&gt;
+
+  &lt;script&gt;
+    document.getElementById('sso-form').submit();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+        <div class="callout alerta">
+          <strong>Atenção ao tratamento de erro:</strong> como o formulário provoca uma navegação real, se a Semente responder 400/401 o navegador é levado para uma página exibindo o JSON de erro cru — o JavaScript desta página intermediária não tem como interceptar essa resposta antes da navegação acontecer. Vale planejar como isso deve se comportar (por exemplo, uma página de erro amigável do lado da Semente, ou uma orientação própria do parceiro sobre o que o usuário deve fazer se cair numa tela assim).
         </div>
       </div>
     </section>
@@ -1050,7 +1085,7 @@ $jwt = JWT::encode($payload, $secret, "HS256");</code></pre>
       <ul class="checklist">
         <li><input type="checkbox" id="chk1"><label for="chk1">Gerei o JWT assinado em HS256 com todas as claims obrigatórias da <a href="#claims-obrigatorias">seção 3.1</a>.</label></li>
         <li><input type="checkbox" id="chk2"><label for="chk2">Garanti que o secret recebido (Base64) seja decodificado para bytes antes de assinar.</label></li>
-        <li><input type="checkbox" id="chk3"><label for="chk3">A chamada POST é feita a partir do navegador do usuário final (form auto-submit ou equivalente), nunca servidor-a-servidor.</label></li>
+        <li><input type="checkbox" id="chk3"><label for="chk3">A chamada POST é feita a partir do navegador do usuário final (form auto-submit, veja o exemplo da <a href="#pagina-redirecionamento">seção 4.4</a>), nunca servidor-a-servidor.</label></li>
         <li><input type="checkbox" id="chk4"><label for="chk4">Testei o fluxo completo: sucesso, token expirado, token reenviado (replay), aud/iss incorretos e claims ausentes.</label></li>
         <li><input type="checkbox" id="chk5"><label for="chk5">Trato os erros 400/401 adequadamente na página intermediária do parceiro (ex.: exibo uma mensagem amigável ao usuário se o SSO falhar).</label></li>
       </ul>
