@@ -322,7 +322,7 @@
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
   }
-  .http-status.s200{ color: var(--verde-escuro); }
+  .http-status.s302{ color: var(--verde-escuro); }
   .http-status.s401{ color: var(--vermelho); }
   .http-status.s400{ color: #8A6A15; }
 
@@ -607,22 +607,26 @@
         <ol class="lista">
           <li>O usuário se autentica normalmente no sistema do parceiro.</li>
           <li>O sistema do parceiro gera um token JWT assinado, identificando o usuário.</li>
-          <li>O parceiro envia esse token para o endpoint de SSO da Semente.</li>
-          <li>A Semente valida o token e autentica o usuário na Plataforma Semente.</li>
-          <li>A Semente retorna uma sessão de acesso válida.</li>
+          <li>O parceiro entrega esse token ao navegador do usuário, que faz a chamada POST ao endpoint de SSO da Semente (por exemplo, via um formulário HTML que se auto-submete).</li>
+          <li>A Semente valida o token.</li>
+          <li>Se válido, a Semente autentica o usuário, define um cookie de sessão no navegador e redireciona o navegador diretamente para a Plataforma Semente, já autenticada.</li>
         </ol>
         <div class="callout alerta">
           <strong>Importante:</strong>
           Toda a lógica de geração e assinatura do token deve ocorrer no back-end do parceiro. O secret de assinatura nunca deve ser exposto no front-end, em aplicativos móveis ou em qualquer código acessível ao usuário final.
         </div>
+        <div class="callout alerta">
+          <strong>A chamada POST deve partir do navegador do usuário, nunca do back-end do parceiro:</strong>
+          A resposta da Semente é um redirecionamento (302) com um cookie de sessão (Set-Cookie) endereçado diretamente ao navegador — não um token reutilizável no corpo da resposta. Por isso, a requisição a <code>/sso_custom</code> precisa ser feita pelo navegador do usuário final (ex.: uma página intermediária do parceiro com um formulário HTML que carrega o JWT e se auto-submete via POST). Se a chamada for feita servidor-a-servidor (back-end do parceiro chamando o back-end da Semente), o redirecionamento e o cookie chegam ao servidor do parceiro, não ao navegador do usuário, e o SSO não funciona.
+        </div>
       </div>
 
       <div class="subsecao" id="diagrama-fluxo">
         <h3>1.3 Diagrama do Fluxo</h3>
-        <p>O diagrama abaixo ilustra a sequência completa da integração, desde o login do usuário no sistema do parceiro até o acesso à Plataforma Semente:</p>
+        <p>O diagrama abaixo ilustra a sequência completa da integração. Note que, a partir do passo 3, quem conversa com a Semente é o navegador do usuário — não o back-end do parceiro:</p>
 
         <div class="diagrama-wrap">
-          <svg viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de sequência da integração SSO com 8 passos entre Usuário, Sistema do Parceiro e Plataforma Semente">
+          <svg viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de sequência da integração SSO com 8 passos entre Usuário, Sistema do Parceiro e Plataforma Semente. A partir do passo 3, a comunicação com a Semente ocorre pelo navegador do usuário, e o redirecionamento final (passo 7) vai da Semente direto para o usuário">
             <defs>
               <marker id="seta-cinza" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill="#1A2E3D"/>
@@ -665,48 +669,48 @@
               <text x="500" y="187" text-anchor="middle" font-size="12.5" fill="#6B6B6A">o secret HS256)</text>
 
               <!-- Passo 3 -->
-              <line x1="500" y1="222" x2="834" y2="222" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
-              <text x="670" y="212" text-anchor="middle">3. POST /sso_custom</text>
-              <text x="670" y="242" text-anchor="middle" font-size="12.5" fill="#6B6B6A" font-family="'JetBrains Mono', monospace">{ "token": "&lt;JWT&gt;" }</text>
+              <line x1="500" y1="222" x2="166" y2="222" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
+              <text x="328" y="212" text-anchor="middle">3. Entrega formulário (auto-submit) com o JWT</text>
 
               <!-- Passo 4 -->
-              <rect x="730" y="262" width="220" height="150" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
-              <text x="840" y="288" text-anchor="middle" font-weight="700">4. Validações</text>
-              <text x="840" y="310" text-anchor="middle" font-size="12.5">• Assinatura (secret)</text>
-              <text x="840" y="330" text-anchor="middle" font-size="12.5">• Audience / Issuer</text>
-              <text x="840" y="350" text-anchor="middle" font-size="12.5">• Expiração (exp)</text>
-              <text x="840" y="370" text-anchor="middle" font-size="12.5">• Reuso do jti</text>
-              <text x="840" y="390" text-anchor="middle" font-size="12" fill="#6B6B6A">(replay)</text>
+              <line x1="160" y1="270" x2="834" y2="270" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza)"/>
+              <text x="500" y="260" text-anchor="middle">4. POST /sso_custom — enviado pelo navegador</text>
+              <text x="500" y="290" text-anchor="middle" font-size="12.5" fill="#6B6B6A" font-family="'JetBrains Mono', monospace">{ "token": "&lt;JWT&gt;" }</text>
 
               <!-- Passo 5 -->
-              <rect x="730" y="430" width="220" height="58" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
-              <text x="840" y="454" text-anchor="middle" font-weight="700" font-size="13.5">5. Autentica o login</text>
-              <text x="840" y="474" text-anchor="middle" font-size="12" fill="#6B6B6A">(método já existente)</text>
+              <rect x="730" y="310" width="220" height="150" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
+              <text x="840" y="336" text-anchor="middle" font-weight="700">5. Validações</text>
+              <text x="840" y="358" text-anchor="middle" font-size="12.5">• Assinatura (secret)</text>
+              <text x="840" y="378" text-anchor="middle" font-size="12.5">• Audience / Issuer</text>
+              <text x="840" y="398" text-anchor="middle" font-size="12.5">• Expiração (exp)</text>
+              <text x="840" y="418" text-anchor="middle" font-size="12.5">• Reuso do jti</text>
+              <text x="840" y="438" text-anchor="middle" font-size="12" fill="#6B6B6A">(replay)</text>
 
               <!-- Passo 6 -->
-              <line x1="840" y1="518" x2="506" y2="518" stroke="#55782C" stroke-width="2" marker-end="url(#seta-verde)"/>
-              <text x="670" y="508" text-anchor="middle">6. 200 OK — sessão de acesso</text>
+              <rect x="720" y="480" width="240" height="58" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
+              <text x="840" y="504" text-anchor="middle" font-weight="700" font-size="13.5">6. Autentica e define cookie</text>
+              <text x="840" y="524" text-anchor="middle" font-size="12" fill="#6B6B6A">de sessão (Set-Cookie)</text>
 
               <!-- Passo 7 -->
-              <line x1="500" y1="556" x2="166" y2="556" stroke="#55782C" stroke-width="2" marker-end="url(#seta-verde)"/>
-              <text x="328" y="546" text-anchor="middle">7. Redireciona usuário autenticado</text>
+              <line x1="840" y1="568" x2="166" y2="568" stroke="#55782C" stroke-width="2" marker-end="url(#seta-verde)"/>
+              <text x="500" y="558" text-anchor="middle">7. 302 Found + Set-Cookie — redireciona o navegador</text>
 
               <!-- Passo 8 -->
-              <line x1="160" y1="592" x2="834" y2="592" stroke="#6B6B6A" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#seta-cinza-clara)"/>
-              <text x="500" y="582" text-anchor="middle">8. Usuário navega na Plataforma Semente</text>
+              <line x1="160" y1="604" x2="834" y2="604" stroke="#6B6B6A" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#seta-cinza-clara)"/>
+              <text x="500" y="594" text-anchor="middle">8. Usuário navega na Plataforma Semente, já autenticado</text>
             </g>
 
             <!-- Caixa de nota -->
-            <rect x="40" y="640" width="920" height="120" rx="10" fill="#FBF1DA" stroke="#F4BB2F" stroke-width="1.5"/>
-            <text x="65" y="672" font-family="Poppins, sans-serif" font-size="14.5" font-weight="700" fill="#333233">Se alguma validação do passo 4 falhar:</text>
-            <text x="65" y="700" font-family="Poppins, sans-serif" font-size="14" fill="#333233">
-              <tspan x="65" dy="0">a Semente responde com 401 (ou 400) diretamente ao parceiro no passo 6, sem autenticar</tspan>
-              <tspan x="65" dy="22">nenhum usuário — o fluxo é interrompido ali.</tspan>
+            <rect x="40" y="636" width="920" height="120" rx="10" fill="#FBF1DA" stroke="#F4BB2F" stroke-width="1.5"/>
+            <text x="65" y="668" font-family="Poppins, sans-serif" font-size="14.5" font-weight="700" fill="#333233">Se alguma validação do passo 5 falhar:</text>
+            <text x="65" y="696" font-family="Poppins, sans-serif" font-size="14" fill="#333233">
+              <tspan x="65" dy="0">a Semente responde com erro (401 ou 400) diretamente ao navegador do usuário — não ao</tspan>
+              <tspan x="65" dy="22">parceiro. Nenhum usuário é autenticado e o fluxo é interrompido ali.</tspan>
             </text>
           </svg>
         </div>
 
-        <p>Caso qualquer validação do passo 4 falhe (assinatura, audience/issuer, expiração ou reuso do jti), a Semente responde com erro diretamente ao parceiro, e nenhum usuário é autenticado.</p>
+        <p>Caso qualquer validação do passo 5 falhe (assinatura, audience/issuer, expiração ou reuso do jti), a Semente responde com erro diretamente ao navegador do usuário — a página intermediária do parceiro (a mesma que fez o POST no passo 4) precisa estar preparada para tratar essa resposta de erro.</p>
       </div>
     </section>
 
@@ -783,16 +787,19 @@
 
       <div class="subsecao" id="url-metodo">
         <h3>4.1 URL e Método</h3>
-        <p>O parceiro deve enviar o token via requisição HTTP POST para:</p>
+        <p>A requisição HTTP POST com o token deve ser enviada para:</p>
         <div class="code-block">
           <div class="code-header"><span>Endpoint</span></div>
           <pre><code class="language-http">POST https://integracao.sementeeducacao.com.br/api/v0/accounts/sso_custom</code></pre>
+        </div>
+        <div class="callout alerta">
+          <strong>Essa requisição precisa partir do navegador do usuário final</strong>, não do back-end do parceiro. Veja o motivo na <a href="#fluxo-resumido">seção 1.2</a>.
         </div>
       </div>
 
       <div class="subsecao" id="formato-requisicao">
         <h3>4.2 Formato da Requisição</h3>
-        <p>O corpo da requisição deve ser um JSON contendo o token no campo <code>token</code>:</p>
+        <p>O corpo da requisição deve ser um JSON contendo o token no campo <code>token</code>. Na prática, o parceiro costuma gerar uma página HTML intermediária cujo formulário se auto-submete via POST, carregando o token para o navegador do usuário fazer a chamada:</p>
         <div class="code-block" data-copy>
           <div class="code-header">
             <span>Requisição</span>
@@ -810,20 +817,17 @@ Content-Type: application/json
 
       <div class="subsecao" id="respostas">
         <h3>4.3 Respostas</h3>
-        <p>Em caso de sucesso, a Semente retorna a sessão de acesso:</p>
+        <p>Em caso de sucesso, a Semente <strong>não</strong> retorna um token em JSON — ela autentica o usuário, define um cookie de sessão no navegador e redireciona a resposta para a Plataforma Semente:</p>
         <div class="code-block" data-copy>
           <div class="code-header">
-            <span>200 OK</span>
+            <span>302 Found</span>
             <button class="copy-btn" data-copy-btn>Copiar</button>
           </div>
-          <pre><code class="language-http">HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "sessionToken": "...",
-  "expiresIn": 3600
-}</code></pre>
+          <pre><code class="language-http">HTTP/1.1 302 Found
+Location: &lt;URL da Plataforma Semente&gt;
+Set-Cookie: &lt;cookie de sessão&gt;</code></pre>
         </div>
+        <p>O header <code>Location</code> aponta para a Plataforma Semente e o <code>Set-Cookie</code> estabelece a sessão de acesso — como essa resposta é endereçada ao navegador (não a um caller server-to-server), o próprio navegador segue o redirecionamento automaticamente e chega à Plataforma Semente já autenticado.</p>
 
         <p>Em caso de falha de validação:</p>
         <div class="code-block" data-copy>
@@ -835,8 +839,7 @@ Content-Type: application/json
 Content-Type: application/json
 
 {
-  "error": "invalid_token",
-  "message": "Token expirado ou já utilizado"
+  "mensagem": "Token expirado ou já utilizado"
 }</code></pre>
         </div>
 
@@ -847,7 +850,7 @@ Content-Type: application/json
               <tr><th>HTTP</th><th>Situação</th><th>Descrição</th></tr>
             </thead>
             <tbody>
-              <tr><td class="http-status s200">200</td><td>Sucesso</td><td>Token válido. A resposta contém a sessão de acesso à Plataforma Semente.</td></tr>
+              <tr><td class="http-status s302">302</td><td>Sucesso</td><td>Token válido. Usuário autenticado e redirecionado para a Plataforma Semente com sessão já ativa.</td></tr>
               <tr><td class="http-status s401">401</td><td>Não autorizado</td><td>Assinatura inválida, client_id desconhecido, token expirado, ou token já utilizado (replay).</td></tr>
               <tr><td class="http-status s400">400</td><td>Requisição inválida</td><td>Corpo da requisição malformado ou claims obrigatórias ausentes.</td></tr>
             </tbody>
@@ -1040,16 +1043,11 @@ $jwt = JWT::encode($payload, $secret, "HS256");</code></pre>
     <section class="secao" id="checklist">
       <h2>6. Checklist de Implementação</h2>
       <ul class="checklist">
-        <li><input type="checkbox" id="chk1"><label for="chk1">Recebi o client_id e o secret da Semente por canal seguro.</label></li>
-        <li><input type="checkbox" id="chk2"><label for="chk2">Implementei a geração do JWT no back-end (nunca no front-end ou app móvel).</label></li>
-        <li><input type="checkbox" id="chk3"><label for="chk3">O token inclui todas as claims obrigatórias: sub, iss, aud, jti, iat, nbf, exp.</label></li>
-        <li><input type="checkbox" id="chk4"><label for="chk4">O valor de aud é exatamente "plataforma-semente".</label></li>
-        <li><input type="checkbox" id="chk5"><label for="chk5">O token expira 5 minutos após a emissão.</label></li>
-        <li><input type="checkbox" id="chk6"><label for="chk6">Cada token gerado tem um jti único (UUID v4).</label></li>
-        <li><input type="checkbox" id="chk7"><label for="chk7">O token é assinado com HS256, usando o secret decodificado de Base64.</label></li>
-        <li><input type="checkbox" id="chk8"><label for="chk8">O relógio do servidor está sincronizado via NTP.</label></li>
-        <li><input type="checkbox" id="chk9"><label for="chk9">A requisição é enviada via POST para o endpoint /api/v0/accounts/sso_custom.</label></li>
-        <li><input type="checkbox" id="chk10"><label for="chk10">Testei o fluxo completo em ambiente de homologação antes de subir para produção.</label></li>
+        <li><input type="checkbox" id="chk1"><label for="chk1">Gerei o JWT assinado em HS256 com todas as claims obrigatórias da <a href="#claims-obrigatorias">seção 3.1</a>.</label></li>
+        <li><input type="checkbox" id="chk2"><label for="chk2">Garanti que o secret recebido (Base64) seja decodificado para bytes antes de assinar.</label></li>
+        <li><input type="checkbox" id="chk3"><label for="chk3">A chamada POST é feita a partir do navegador do usuário final (form auto-submit ou equivalente), nunca servidor-a-servidor.</label></li>
+        <li><input type="checkbox" id="chk4"><label for="chk4">Testei o fluxo completo: sucesso, token expirado, token reenviado (replay), aud/iss incorretos e claims ausentes.</label></li>
+        <li><input type="checkbox" id="chk5"><label for="chk5">Trato os erros 400/401 adequadamente na página intermediária do parceiro (ex.: exibo uma mensagem amigável ao usuário se o SSO falhar).</label></li>
       </ul>
     </section>
 
@@ -1091,7 +1089,7 @@ $jwt = JWT::encode($payload, $secret, "HS256");</code></pre>
 </footer>
 
 <script>
-  hljs.highlightAll();
+  //hljs.highlightAll();
 
   // Botões de copiar
   function copiarTexto(text){
