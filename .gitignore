@@ -1,0 +1,14 @@
+# Documento-fonte (não versionado; conteúdo já espelhado em index.html)
+*.docx
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores / IDEs
+.vscode/
+.idea/
+
+# Diretórios de ferramentas locais
+.remember/
