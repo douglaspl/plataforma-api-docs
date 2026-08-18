@@ -806,7 +806,7 @@
 
       <div class="subsecao" id="formato-requisicao">
         <h3>4.2 Formato da Requisição</h3>
-        <p>O corpo da requisição deve conter o token no campo <code>token</code>, como <code>application/x-www-form-urlencoded</code> — o mesmo formato que um <code>&lt;form&gt;</code> HTML nativo envia. Esse formato (em vez de JSON) é proposital: é o que permite que a requisição seja feita por uma navegação real do navegador (um formulário que se auto-submete), sem depender de JavaScript assíncrono (<code>fetch</code>/XHR), que esbarraria em CORS e em restrições de cookie de terceiros. Veja o exemplo completo na <a href="#pagina-redirecionamento">seção 4.4</a>.</p>
+        <p>O corpo da requisição deve conter o token no campo <code>token</code>, como <code>application/x-www-form-urlencoded</code> — o mesmo formato que um <code>&lt;form&gt;</code> HTML nativo envia. Esse formato (em vez de JSON) é proposital: é o que permite que a requisição seja feita por uma navegação real do navegador (um formulário que se auto-submete), sem depender de JavaScript assíncrono (<code>fetch</code>/XHR), que esbarraria em CORS e em restrições de cookie de terceiros. É a mesma técnica do <em>HTTP-POST Binding</em> usado em autenticações SAML 2.0 — a integração da Semente não usa SAML, mas resolve o mesmo problema (entregar uma credencial ao navegador do usuário) da mesma forma consolidada. Veja o exemplo completo na <a href="#pagina-redirecionamento">seção 4.4</a>.</p>
         <div class="code-block" data-copy>
           <div class="code-header">
             <span>Requisição</span>
