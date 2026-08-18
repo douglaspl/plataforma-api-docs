@@ -5,21 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Documentação de Integrações | Plataforma Semente</title>
 
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --verde-escuro: #2F5233;
-    --verde-escuro-hover: #24401f;
-    --verde-claro-bg: #EFF5EF;
-    --texto-principal: #1F2A22;
-    --texto-secundario: #5B6B5E;
-    --borda-suave: #E3E8E3;
+    /* Paleta oficial — Manual de Identidade Visual, Plataforma Semente */
+    --verde: #8AB925;
+    --verde-escuro: #55782C;
+    --verde-escuro-hover: #46621f;
+    --verde-claro-bg: #EEF4E1;
+    --azul-marinho: #1A2E3D;
+    --creme: #F2EFE9;
+    --texto-principal: #333233;
+    --texto-secundario: #6B6B6A;
+    --borda-suave: #E6E2D9;
     --fundo-pagina: #FFFFFF;
     --sombra: 0 2px 10px rgba(0,0,0,0.06);
-    --sombra-hover: 0 8px 24px rgba(47,82,51,0.14);
+    --sombra-hover: 0 8px 24px rgba(85,120,44,0.16);
     --raio: 12px;
   }
 
@@ -46,8 +52,25 @@
     box-shadow: var(--sombra);
   }
   .topbar .marca{
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     font-weight: 600;
     font-size: 1.05rem;
+  }
+  .topbar .marca-simbolo{
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .topbar .marca-texto .leve{
+    font-weight: 400;
+    opacity: 0.85;
+    letter-spacing: 0.04em;
+    margin-right: 0.35rem;
+  }
+  .topbar .marca-texto .forte{
+    font-weight: 800;
   }
   .topbar .versao{
     font-size: 0.78rem;
@@ -66,7 +89,7 @@
   .hero h1{
     font-size: 2.1rem;
     margin: 0 0 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--verde-escuro);
   }
   .hero p{
@@ -123,7 +146,7 @@
   }
 
   .card.em-breve{
-    background: #FAFBFA;
+    background: var(--creme);
     color: var(--texto-secundario);
   }
 
@@ -158,8 +181,8 @@
     color: var(--verde-escuro);
   }
   .selo.futuro{
-    background: #EEEEEE;
-    color: #888888;
+    background: #E6E2D9;
+    color: var(--texto-secundario);
   }
 
   .card p{
@@ -202,7 +225,16 @@
 <body>
 
 <div class="topbar">
-  <div class="marca">Plataforma Semente</div>
+  <div class="marca">
+    <svg class="marca-simbolo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#F4BB2F" d="M 38.561 0 L 38.561 31.761 C 38.561 36.038, 35.418 39.591, 31.32 40.233 C 30.887 40.293, 30.44 40.33, 29.992 40.33 L 0 40.33 L 0 0 Z"/>
+      <path fill="#E61D47" d="M 100 24.088 L 100 35.71 L 54.982 35.71 C 50.056 35.71, 46.025 31.679, 46.025 26.752 L 46.025 0 L 75.913 0 C 82.921 0, 89.259 3.031, 93.67 7.853 C 97.596 12.145, 100 17.855, 100 24.088 Z"/>
+      <path fill="#8AB925" d="M 38.71 56.222 L 38.71 100 L 24.095 100 C 10.846 100, 0 89.154, 0 75.905 L 0 47.645 L 30.141 47.645 C 30.551 47.645, 30.962 47.675, 31.358 47.735 C 35.508 48.324, 38.71 51.907, 38.71 56.222 Z"/>
+      <path fill="#3FA5C3" d="M 100 43.174 L 100 64.104 L 78.323 64.104 C 69.478 64.104, 62.283 71.3, 62.283 80.137 L 62.283 100 L 46.174 100 L 46.174 51.743 C 46.174 47.018, 50.019 43.174, 54.751 43.174 Z"/>
+      <path fill="#765AA3" d="M 78.323 71.568 L 100 71.568 L 100 100 L 69.747 100 L 69.747 80.137 C 69.747 75.412, 73.599 71.568, 78.323 71.568 Z"/>
+    </svg>
+    <span class="marca-texto"><span class="leve">Plataforma</span><span class="forte">Semente</span></span>
+  </div>
   <div class="versao">Documentação de Integrações</div>
 </div>
 
