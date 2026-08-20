@@ -769,7 +769,7 @@
               <tr><td><code>genero</code></td><td>string</td><td>Sim</td><td>Gênero: <span class="claim">masculino</span>, <span class="claim">feminino</span> ou <span class="claim">não informar</span>.</td></tr>
               <tr><td><code>telefone</code></td><td>string</td><td>Condicional</td><td>Telefone do usuário. Obrigatório se <code>email</code> não for informado — ver seção 3.4.</td></tr>
               <tr><td><code>serie</code></td><td>string</td><td>Sim</td><td>Série/Ano do usuário (ex.: "6º Ano").</td></tr>
-              <tr><td><code>turma</code></td><td>string</td><td>Sim</td><td>Nome da turma do usuário (ex.: "Turma 2"). Os nomes válidos de turmas da instituição podem ser obtidos através do endpoint de <a href="lista-turmas.html#endpoint">Listagem de Turmas Ativas</a>.</td></tr>
+              <tr><td><code>turma</code></td><td>string</td><td>Sim</td><td>Nome da turma do usuário (ex.: "Turma 2"). Os nomes válidos de turmas da instituição podem ser obtidos através do endpoint de <a href="lista-turmas.html#endpoint" target="_blank">Listagem de Turmas Ativas</a>.</td></tr>
               <tr><td><code>send_email</code></td><td>string</td><td>Sim</td><td>Enviar email de boas-vindas: <span class="claim">sim</span> ou <span class="claim">não</span>.</td></tr>
             </tbody>
           </table>
@@ -996,7 +996,7 @@ string json = """
         "enabled": "ativar",
         "role": "aluno",
         "genero": "masculino",
-        "telefone": "",
+        "telefone": "11955555555",
         "serie": "6º Ano",
         "turma": "Turma 2",
         "send_email": "não"
@@ -1039,7 +1039,7 @@ body = {
                 "enabled": "ativar",
                 "role": "aluno",
                 "genero": "masculino",
-                "telefone": "",
+                "telefone": "11955555555",
                 "serie": "6º Ano",
                 "turma": "Turma 2",
                 "send_email": "não"
@@ -1081,7 +1081,7 @@ String json = """
         "enabled": "ativar",
         "role": "aluno",
         "genero": "masculino",
-        "telefone": "",
+        "telefone": "11955555555",
         "serie": "6º Ano",
         "turma": "Turma 2",
         "send_email": "não"
@@ -1126,7 +1126,7 @@ const body = {
         enabled: "ativar",
         role: "aluno",
         genero: "masculino",
-        telefone: "",
+        telefone: "11955555555",
         serie: "6º Ano",
         turma: "Turma 2",
         send_email: "não"
@@ -1168,7 +1168,7 @@ $body = [
                 "enabled" => "ativar",
                 "role" => "aluno",
                 "genero" => "masculino",
-                "telefone" => "",
+                "telefone" => "11955555555",
                 "serie" => "6º Ano",
                 "turma" => "Turma 2",
                 "send_email" => "não"
