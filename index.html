@@ -20,6 +20,12 @@
     --verde-claro-bg: #EEF4E1;
     --azul-marinho: #1A2E3D;
     --creme: #F2EFE9;
+    --azul-claro: #3FA5C3;
+    --azul-claro-bg: #E7F3F7;
+    --amarelo-borda: #F4BB2F;
+    --amarelo-bg: #FBF1DA;
+    --roxo: #765AA3;
+    --roxo-bg: #F0EBF6;
     --texto-principal: #333233;
     --texto-secundario: #6B6B6A;
     --borda-suave: #E6E2D9;
@@ -105,20 +111,6 @@
     padding: 1.5rem 1.5rem 5rem;
   }
 
-  .grupo{
-    margin-bottom: 3rem;
-  }
-  .grupo h2{
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--texto-secundario);
-    border-bottom: 1px solid var(--borda-suave);
-    padding-bottom: 0.6rem;
-    margin: 0 0 1.25rem;
-    font-weight: 600;
-  }
-
   .grade{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -158,7 +150,7 @@
   }
 
   .card h3{
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin: 0;
     color: var(--texto-principal);
   }
@@ -183,6 +175,29 @@
   .selo.futuro{
     background: #E6E2D9;
     color: var(--texto-secundario);
+  }
+
+  .tag-categoria{
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+  }
+  .tag-categoria.autenticacao{
+    background: var(--azul-claro-bg);
+    color: #1E6A80;
+  }
+  .tag-categoria.cadastro{
+    background: var(--amarelo-bg);
+    color: #8A6A15;
+  }
+  .tag-categoria.consulta{
+    background: var(--roxo-bg);
+    color: var(--roxo);
   }
 
   .card p{
@@ -244,33 +259,38 @@
 </div>
 
 <main>
-  <div class="grupo">
-    <h2>Autenticação</h2>
-    <div class="grade">
-      <div class="card disponivel">
-        <a class="card-link" href="docs/sso.html" aria-label="Abrir documentação de Integração SSO"></a>
-        <div class="card-topo">
-          <h3>Integração SSO</h3>
-          <span class="selo ativo">Disponível</span>
-        </div>
-        <p>Single Sign-On via JWT assinado com HMAC-SHA256, para autenticar usuários do parceiro diretamente na Plataforma Semente.</p>
-        <span class="cta">Ver documentação →</span>
+  <div class="grade">
+    <div class="card disponivel">
+      <a class="card-link" href="docs/sso.html" aria-label="Abrir documentação de Integração SSO"></a>
+      <div class="card-topo">
+        <h3>Integração SSO</h3>
+        <span class="selo ativo">Disponível</span>
       </div>
+      <span class="tag-categoria autenticacao">Autenticação</span>
+      <p>Single Sign-On via JWT assinado com HMAC-SHA256, para autenticar usuários do parceiro diretamente na Plataforma Semente.</p>
+      <span class="cta">Ver documentação →</span>
     </div>
-  </div>
 
-  <div class="grupo">
-    <h2>Cadastro</h2>
-    <div class="grade">
-      <div class="card disponivel">
-        <a class="card-link" href="docs/cadastro-usuarios.html" aria-label="Abrir documentação de Cadastro de Usuários"></a>
-        <div class="card-topo">
-          <h3>Cadastro de Usuários</h3>
-          <span class="selo ativo">Disponível</span>
-        </div>
-        <p>Endpoint para provisionamento, atualização e desativação de usuários (alunos e professores) do parceiro na Plataforma Semente.</p>
-        <span class="cta">Ver documentação →</span>
+    <div class="card disponivel">
+      <a class="card-link" href="docs/cadastro-usuarios.html" aria-label="Abrir documentação de Cadastro de Usuários"></a>
+      <div class="card-topo">
+        <h3>Cadastro de Usuários</h3>
+        <span class="selo ativo">Disponível</span>
       </div>
+      <span class="tag-categoria cadastro">Cadastro</span>
+      <p>Endpoint para provisionamento, atualização e desativação de usuários (alunos e professores) do parceiro na Plataforma Semente.</p>
+      <span class="cta">Ver documentação →</span>
+    </div>
+
+    <div class="card disponivel">
+      <a class="card-link" href="docs/lista-turmas.html" aria-label="Abrir documentação de Listagem de Turmas Ativas"></a>
+      <div class="card-topo">
+        <h3>Listagem de Turmas Ativas</h3>
+        <span class="selo ativo">Disponível</span>
+      </div>
+      <span class="tag-categoria consulta">Consulta</span>
+      <p>Endpoint de consulta (GET) para obter as turmas ativas da instituição parceira, agrupadas por série escolar.</p>
+      <span class="cta">Ver documentação →</span>
     </div>
   </div>
 </main>
