@@ -569,6 +569,7 @@
             <li><a href="#formato-requisicao" data-nav>4.2 Formato da Requisição</a></li>
             <li><a href="#respostas" data-nav>4.3 Respostas</a></li>
             <li><a href="#pagina-redirecionamento" data-nav>4.4 Página de Redirecionamento</a></li>
+            <li><a href="#gerando-devolvendo-pagina" data-nav>4.5 Gerando e Devolvendo a Página</a></li>
           </ul>
         </li>
         <li><a href="#exemplos-jwt" data-nav>5. Exemplos de Geração do JWT</a>
@@ -610,7 +611,7 @@
           <li>O usuário se autentica normalmente no sistema do parceiro.</li>
           <li>Em algum momento posterior, o usuário clica em uma opção do tipo "Acessar Plataforma Semente" dentro do sistema do parceiro.</li>
           <li>Esse clique aciona o sistema do parceiro a gerar um token JWT assinado, identificando o usuário.</li>
-          <li>O parceiro entrega esse token ao navegador do usuário, que faz a chamada POST ao endpoint de SSO da Semente (por exemplo, via um formulário HTML que se auto-submete).</li>
+          <li>O parceiro entrega esse token ao navegador do usuário: o back-end do parceiro responde a esse clique devolvendo uma página HTML com o token embutido, que se auto-submete via POST ao endpoint de SSO da Semente (ver <a href="#gerando-devolvendo-pagina">seção 4.5</a>).</li>
           <li>A Semente valida o token.</li>
           <li>Se válido, a Semente autentica o usuário, define um cookie de sessão no navegador e redireciona o navegador diretamente para a Plataforma Semente, já autenticada.</li>
         </ol>
@@ -897,6 +898,188 @@ Content-Type: application/json
           <strong>Atenção ao tratamento de erro:</strong> como o formulário provoca uma navegação real, se a Semente responder 400/401 o navegador é levado para uma página exibindo o JSON de erro cru — o JavaScript desta página intermediária não tem como interceptar essa resposta antes da navegação acontecer. Vale planejar como isso deve se comportar (por exemplo, uma página de erro amigável do lado da Semente, ou uma orientação própria do parceiro sobre o que o usuário deve fazer se cair numa tela assim).
         </div>
       </div>
+
+      <div class="subsecao" id="gerando-devolvendo-pagina">
+        <h3>4.5 Gerando e Devolvendo a Página no Back-end (Exemplo Completo)</h3>
+        <p>O exemplo da <a href="#pagina-redirecionamento">seção 4.4</a> mostra apenas o HTML final — o que falta é o código do back-end do parceiro que responde ao clique em "Acessar Plataforma Semente" (passo 2 do <a href="#diagrama-fluxo">diagrama</a>) gerando o JWT (seção 5), embutindo-o nesse template e devolvendo o resultado como resposta HTTP com <code>Content-Type: text/html</code>. É esse handler que fecha o ciclo entre "gerar o token" e "entregar a página" ao navegador.</p>
+        <div class="callout info">
+          <strong>Escape o token ao embuti-lo no HTML:</strong>
+          Hoje o alfabeto de um JWT (base64url + pontos) já é seguro dentro de um atributo HTML, mas escapar o valor antes de interpolá-lo é uma boa prática defensiva de baixo custo — os exemplos abaixo fazem isso com o utilitário padrão de cada linguagem.
+        </div>
+
+        <div class="lang-grupo">
+          <div class="lang-tabs" role="tablist">
+            <button class="lang-tab ativo" data-lang="backend-csharp">C# (.NET)</button>
+            <button class="lang-tab" data-lang="backend-python">Python</button>
+            <button class="lang-tab" data-lang="backend-java">Java</button>
+            <button class="lang-tab" data-lang="backend-nodejs">Node.js</button>
+            <button class="lang-tab" data-lang="backend-php">PHP</button>
+          </div>
+
+          <div class="lang-panel ativo" id="backend-csharp">
+            <p style="margin-top:1.2rem;">Exemplo com ASP.NET Core (minimal API):</p>
+            <div class="code-block" data-copy>
+              <div class="code-header"><span>C#</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+              <pre><code class="language-csharp">using System.Net;
+
+// GET /sso/iniciar — chamado quando o usuário clica em "Acessar Plataforma Semente"
+app.MapGet("/sso/iniciar", () =>
+{
+    string jwt = GerarJwt(); // ver seção 5.1
+    string tokenEscapado = WebUtility.HtmlEncode(jwt);
+
+    string html = $@"&lt;!DOCTYPE html&gt;
+&lt;html lang=""pt-BR""&gt;
+&lt;head&gt;
+  &lt;meta charset=""UTF-8""&gt;
+  &lt;title&gt;Redirecionando para a Plataforma Semente...&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;p&gt;Redirecionando, aguarde…&lt;/p&gt;
+  &lt;form id=""sso-form"" method=""POST"" action=""https://integracao.sementeeducacao.com.br/api/v0/accounts/sso_custom""&gt;
+    &lt;input type=""hidden"" name=""token"" value=""{tokenEscapado}""&gt;
+    &lt;noscript&gt;&lt;button type=""submit""&gt;Clique aqui para continuar&lt;/button&gt;&lt;/noscript&gt;
+  &lt;/form&gt;
+  &lt;script&gt;document.getElementById('sso-form').submit();&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;";
+
+    return Results.Content(html, "text/html");
+});</code></pre>
+            </div>
+          </div>
+
+          <div class="lang-panel" id="backend-python">
+            <p style="margin-top:1.2rem;">Exemplo com Flask:</p>
+            <div class="code-block" data-copy>
+              <div class="code-header"><span>Python</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+              <pre><code class="language-python">from flask import Flask, Response
+from markupsafe import escape
+
+app = Flask(__name__)
+
+@app.route("/sso/iniciar")
+def sso_iniciar():
+    jwt_token = gerar_jwt()  # ver seção 5.2
+
+    html = f"""&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Redirecionando para a Plataforma Semente...&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;p&gt;Redirecionando, aguarde…&lt;/p&gt;
+  &lt;form id="sso-form" method="POST" action="https://integracao.sementeeducacao.com.br/api/v0/accounts/sso_custom"&gt;
+    &lt;input type="hidden" name="token" value="{escape(jwt_token)}"&gt;
+    &lt;noscript&gt;&lt;button type="submit"&gt;Clique aqui para continuar&lt;/button&gt;&lt;/noscript&gt;
+  &lt;/form&gt;
+  &lt;script&gt;document.getElementById('sso-form').submit();&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;"""
+
+    return Response(html, mimetype="text/html")</code></pre>
+            </div>
+          </div>
+
+          <div class="lang-panel" id="backend-java">
+            <p style="margin-top:1.2rem;">Exemplo com Spring Boot:</p>
+            <div class="code-block" data-copy>
+              <div class="code-header"><span>Java</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+              <pre><code class="language-java">import org.springframework.web.util.HtmlUtils;
+
+@GetMapping("/sso/iniciar")
+public ResponseEntity&lt;String&gt; ssoIniciar() {
+    String jwt = gerarJwt(); // ver seção 5.3
+    String tokenEscapado = HtmlUtils.htmlEscape(jwt);
+
+    String html = """
+        &lt;!DOCTYPE html&gt;
+        &lt;html lang="pt-BR"&gt;
+        &lt;head&gt;
+          &lt;meta charset="UTF-8"&gt;
+          &lt;title&gt;Redirecionando para a Plataforma Semente...&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+          &lt;p&gt;Redirecionando, aguarde…&lt;/p&gt;
+          &lt;form id="sso-form" method="POST" action="https://integracao.sementeeducacao.com.br/api/v0/accounts/sso_custom"&gt;
+            &lt;input type="hidden" name="token" value="%s"&gt;
+            &lt;noscript&gt;&lt;button type="submit"&gt;Clique aqui para continuar&lt;/button&gt;&lt;/noscript&gt;
+          &lt;/form&gt;
+          &lt;script&gt;document.getElementById('sso-form').submit();&lt;/script&gt;
+        &lt;/body&gt;
+        &lt;/html&gt;
+        """.formatted(tokenEscapado);
+
+    return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(html);
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="lang-panel" id="backend-nodejs">
+            <p style="margin-top:1.2rem;">Exemplo com Express:</p>
+            <div class="code-block" data-copy>
+              <div class="code-header"><span>Node.js</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+              <pre><code class="language-javascript">const express = require("express");
+const escapeHtml = require("escape-html");
+
+const app = express();
+
+app.get("/sso/iniciar", (req, res) => {
+  const jwt = gerarJwt(); // ver seção 5.4
+
+  const html = `&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Redirecionando para a Plataforma Semente...&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;p&gt;Redirecionando, aguarde…&lt;/p&gt;
+  &lt;form id="sso-form" method="POST" action="https://integracao.sementeeducacao.com.br/api/v0/accounts/sso_custom"&gt;
+    &lt;input type="hidden" name="token" value="${escapeHtml(jwt)}"&gt;
+    &lt;noscript&gt;&lt;button type="submit"&gt;Clique aqui para continuar&lt;/button&gt;&lt;/noscript&gt;
+  &lt;/form&gt;
+  &lt;script&gt;document.getElementById('sso-form').submit();&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;`;
+
+  res.set("Content-Type", "text/html");
+  res.send(html);
+});</code></pre>
+            </div>
+          </div>
+
+          <div class="lang-panel" id="backend-php">
+            <p style="margin-top:1.2rem;">Exemplo em PHP puro:</p>
+            <div class="code-block" data-copy>
+              <div class="code-header"><span>PHP</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+              <pre><code class="language-php">&lt;?php
+// GET /sso/iniciar
+$jwt = gerarJwt(); // ver seção 5.5
+$tokenEscapado = htmlspecialchars($jwt, ENT_QUOTES, 'UTF-8');
+
+header("Content-Type: text/html; charset=UTF-8");
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Redirecionando para a Plataforma Semente...&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;p&gt;Redirecionando, aguarde…&lt;/p&gt;
+  &lt;form id="sso-form" method="POST" action="https://integracao.sementeeducacao.com.br/api/v0/accounts/sso_custom"&gt;
+    &lt;input type="hidden" name="token" value="&lt;?= $tokenEscapado ?&gt;"&gt;
+    &lt;noscript&gt;&lt;button type="submit"&gt;Clique aqui para continuar&lt;/button&gt;&lt;/noscript&gt;
+  &lt;/form&gt;
+  &lt;script&gt;document.getElementById('sso-form').submit();&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- 5. EXEMPLOS DE GERAÇÃO DO JWT -->
@@ -904,6 +1087,7 @@ Content-Type: application/json
       <h2>5. Exemplos de Geração do JWT</h2>
       <p>A seguir, exemplos de geração do token nas linguagens mais comuns. Todos produzem um token equivalente, seguindo a especificação da seção 3.</p>
 
+      <div class="lang-grupo">
       <div class="lang-tabs" role="tablist">
         <button class="lang-tab ativo" data-lang="csharp">C# (.NET)</button>
         <button class="lang-tab" data-lang="python">Python</button>
@@ -1077,6 +1261,7 @@ $payload = [
 $jwt = JWT::encode($payload, $secret, "HS256");</code></pre>
         </div>
       </div>
+      </div>
     </section>
 
     <!-- 6. CHECKLIST -->
@@ -1174,15 +1359,17 @@ $jwt = JWT::encode($payload, $secret, "HS256");</code></pre>
     });
   });
 
-  // Abas de linguagem (seção 5)
-  var tabs = document.querySelectorAll('.lang-tab');
-  var panels = document.querySelectorAll('.lang-panel');
-  tabs.forEach(function(tab){
-    tab.addEventListener('click', function(){
-      tabs.forEach(function(t){ t.classList.remove('ativo'); });
-      panels.forEach(function(p){ p.classList.remove('ativo'); });
-      tab.classList.add('ativo');
-      document.getElementById(tab.dataset.lang).classList.add('ativo');
+  // Abas de linguagem (seções 4.5 e 5) — cada .lang-grupo tem seu próprio estado de aba ativa
+  document.querySelectorAll('.lang-grupo').forEach(function(grupo){
+    var tabs = grupo.querySelectorAll('.lang-tab');
+    var panels = grupo.querySelectorAll('.lang-panel');
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        tabs.forEach(function(t){ t.classList.remove('ativo'); });
+        panels.forEach(function(p){ p.classList.remove('ativo'); });
+        tab.classList.add('ativo');
+        document.getElementById(tab.dataset.lang).classList.add('ativo');
+      });
     });
   });
 
