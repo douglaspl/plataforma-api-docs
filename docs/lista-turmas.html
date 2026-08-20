@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Listagem de Turmas Ativas — Especificação Técnica | Plataforma Semente</title>
+
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
+
+<style>
+  :root{
+    /* Paleta oficial — Manual de Identidade Visual, Plataforma Semente */
+    --verde: #8AB925;
+    --verde-escuro: #55782C;
+    --verde-escuro-hover: #46621f;
+    --verde-claro-bg: #EEF4E1;
+    --azul-marinho: #1A2E3D;
+    --azul-claro: #3FA5C3;
+    --amarelo-bg: #FBF1DA;
+    --amarelo-borda: #F4BB2F;
+    --vermelho: #E61D47;
+    --cinza-caixa: #F2EFE9;
+    --cinza-caixa-borda: #DCD6C8;
+    --cinza-texto: #6B6B6A;
+    --texto-principal: #333233;
+    --texto-secundario: #6B6B6A;
+    --borda-suave: #E6E2D9;
+    --fundo-pagina: #FFFFFF;
+    --fundo-sidebar: #FAFAF7;
+    --sombra: 0 2px 10px rgba(0,0,0,0.06);
+    --raio: 10px;
+    --largura-sidebar: 300px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    color: var(--texto-principal);
+    background: var(--fundo-pagina);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+
+  a{ color: var(--verde-escuro); text-decoration: none; }
+  a:hover{ text-decoration: underline; }
+
+  code, pre, .mono{
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.5rem;
+    background: var(--verde-escuro);
+    color: #fff;
+    box-shadow: var(--sombra);
+  }
+  .topbar .marca{
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .topbar .marca-simbolo{
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .topbar .marca .produto{
+    font-weight: 400;
+    opacity: 0.85;
+    font-size: 0.9rem;
+  }
+  .topbar .marca .forte{
+    font-weight: 800;
+  }
+  .topbar .voltar-hub{
+    color: #fff;
+    opacity: 0.85;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    white-space: nowrap;
+  }
+  .topbar .voltar-hub:hover{
+    opacity: 1;
+    background: rgba(255,255,255,0.1);
+    text-decoration: none;
+  }
+  @media (max-width: 640px){
+    .topbar .voltar-hub{ display: none; }
+  }
+  .topbar .versao{
+    font-size: 0.78rem;
+    background: rgba(255,255,255,0.15);
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .menu-toggle{
+    display: none;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    display: flex;
+    align-items: flex-start;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .sidebar{
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    width: var(--largura-sidebar);
+    flex: 0 0 var(--largura-sidebar);
+    overflow-y: auto;
+    background: var(--fundo-sidebar);
+    border-right: 1px solid var(--borda-suave);
+    padding: 1.75rem 1.25rem 3rem;
+  }
+
+  .sidebar .grupo-titulo{
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--texto-secundario);
+    margin: 1.4rem 0 0.5rem;
+    font-weight: 600;
+  }
+  .sidebar .grupo-titulo:first-child{ margin-top: 0; }
+
+  .sidebar nav ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidebar nav > ul > li > a{
+    display: block;
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+    color: var(--texto-principal);
+    font-weight: 500;
+    font-size: 0.92rem;
+    border-left: 3px solid transparent;
+  }
+
+  .sidebar nav ul ul{
+    margin-left: 0.6rem;
+    border-left: 1px dashed var(--borda-suave);
+    padding-left: 0.6rem;
+  }
+  .sidebar nav ul ul li a{
+    display: block;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--texto-secundario);
+  }
+
+  .sidebar nav a:hover{
+    background: var(--verde-claro-bg);
+    text-decoration: none;
+  }
+
+  .sidebar nav a.ativo{
+    background: var(--verde-claro-bg);
+    color: var(--verde-escuro);
+    border-left-color: var(--verde-escuro);
+    font-weight: 600;
+  }
+  .sidebar nav ul ul a.ativo{
+    color: var(--verde-escuro);
+    font-weight: 600;
+  }
+
+  .conteudo{
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 2.5rem 3rem 6rem;
+  }
+
+  .hero{
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--borda-suave);
+  }
+  .hero h1{
+    font-size: 2.1rem;
+    margin: 0 0 0.4rem;
+    font-weight: 700;
+    color: var(--verde-escuro);
+  }
+  .hero .subtitulo{
+    font-size: 1.05rem;
+    color: var(--texto-secundario);
+    margin: 0 0 0.25rem;
+  }
+  .hero .meta{
+    font-size: 0.85rem;
+    color: var(--texto-secundario);
+  }
+
+  section.secao{
+    margin-bottom: 3.5rem;
+    scroll-margin-top: 80px;
+  }
+
+  section.secao > h2{
+    font-size: 1.55rem;
+    color: var(--verde-escuro);
+    border-bottom: 2px solid var(--verde-claro-bg);
+    padding-bottom: 0.6rem;
+    margin: 0 0 1.3rem;
+    scroll-margin-top: 80px;
+  }
+
+  .subsecao{
+    margin: 2rem 0;
+    scroll-margin-top: 80px;
+  }
+  .subsecao h3{
+    font-size: 1.15rem;
+    color: var(--texto-principal);
+    margin: 0 0 0.8rem;
+    scroll-margin-top: 80px;
+  }
+
+  p{ margin: 0 0 1rem; }
+  ul.lista, ol.lista{ margin: 0 0 1rem; padding-left: 1.4rem; }
+  ul.lista li, ol.lista li{ margin-bottom: 0.45rem; }
+
+  .callout{
+    border-radius: var(--raio);
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    font-size: 0.95rem;
+  }
+  .callout.info{
+    background: var(--verde-claro-bg);
+    border: 1px solid #D9E3C1;
+  }
+  .callout.alerta{
+    background: var(--amarelo-bg);
+    border: 1px solid var(--amarelo-borda);
+  }
+  .callout strong{ display:block; margin-bottom: 0.3rem; }
+
+  /* ---------- Tabelas ---------- */
+  .tabela-wrap{
+    overflow-x: auto;
+    margin: 1.25rem 0;
+    border-radius: var(--raio);
+    border: 1px solid var(--borda-suave);
+  }
+  table{
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 560px;
+    font-size: 0.92rem;
+  }
+  table thead th{
+    background: var(--verde-escuro);
+    color: #fff;
+    text-align: left;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  table tbody td{
+    padding: 0.7rem 1rem;
+    border-top: 1px solid var(--borda-suave);
+    vertical-align: top;
+  }
+  table tbody tr:nth-child(even){ background: var(--fundo-sidebar); }
+  table td code, table td .claim{
+    background: var(--cinza-caixa);
+    border: 1px solid var(--cinza-caixa-borda);
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    font-size: 0.85em;
+  }
+  .http-status{
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .http-status.s200{ color: var(--verde-escuro); }
+  .http-status.s401{ color: var(--vermelho); }
+  .http-status.s400{ color: #8A6A15; }
+  .http-status.s404{ color: #8A6A15; }
+  .http-status.s429{ color: #8A6A15; }
+
+  /* ---------- Blocos de código ---------- */
+  .code-block{
+    position: relative;
+    margin: 1.1rem 0 1.6rem;
+    border-radius: var(--raio);
+    overflow: hidden;
+    border: 1px solid var(--azul-marinho);
+    box-shadow: var(--sombra);
+  }
+  .code-block .code-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--azul-marinho);
+    color: #cfd3d8;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+  .code-block pre{
+    margin: 0;
+    padding: 1.1rem 1.25rem;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+  .code-block pre code.hljs{
+    padding: 0;
+    background: transparent;
+  }
+  .copy-btn{
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #e6e6e6;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .copy-btn:hover{ background: rgba(255,255,255,0.18); }
+  .copy-btn.copiado{ background: var(--verde-escuro); border-color: var(--verde-escuro); color: #fff; }
+
+  .lang-tabs{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0 0.25rem;
+  }
+  .lang-tab{
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid var(--borda-suave);
+    background: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--texto-secundario);
+  }
+  .lang-tab:hover{ border-color: var(--verde-escuro); color: var(--verde-escuro); }
+  .lang-tab.ativo{
+    background: var(--verde-escuro);
+    border-color: var(--verde-escuro);
+    color: #fff;
+  }
+  .lang-panel{ display: none; }
+  .lang-panel.ativo{ display: block; }
+
+  /* ---------- Checklist ---------- */
+  .checklist{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .checklist li{
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.75rem 1rem;
+    background: var(--fundo-sidebar);
+    border: 1px solid var(--borda-suave);
+    border-radius: 8px;
+  }
+  .checklist input[type="checkbox"]{
+    margin-top: 0.2rem;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--verde-escuro);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .checklist label{ cursor: pointer; }
+
+  /* ---------- FAQ ---------- */
+  .faq-item{
+    border: 1px solid var(--borda-suave);
+    border-radius: var(--raio);
+    margin-bottom: 0.9rem;
+    overflow: hidden;
+  }
+  .faq-pergunta{
+    width: 100%;
+    text-align: left;
+    background: var(--fundo-sidebar);
+    border: none;
+    padding: 1rem 1.25rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--texto-principal);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .faq-pergunta .seta{
+    transition: transform 0.2s ease;
+    color: var(--verde-escuro);
+    flex-shrink: 0;
+  }
+  .faq-item.aberto .faq-pergunta .seta{ transform: rotate(180deg); }
+  .faq-resposta{
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    background: #fff;
+  }
+  .faq-resposta-inner{
+    padding: 0 1.25rem 1.1rem;
+    color: var(--texto-secundario);
+  }
+
+  /* ---------- Diagrama ---------- */
+  .diagrama-wrap{
+    margin: 1.5rem 0;
+    background: #fff;
+    border: 1px solid var(--borda-suave);
+    border-radius: var(--raio);
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  .diagrama-wrap svg{
+    width: 100%;
+    height: auto;
+    min-width: 680px;
+    display: block;
+  }
+
+  footer.rodape{
+    padding: 2rem 3rem 3rem;
+    border-top: 1px solid var(--borda-suave);
+    color: var(--texto-secundario);
+    font-size: 0.85rem;
+  }
+
+  /* ---------- Responsivo ---------- */
+  @media (max-width: 960px){
+    .menu-toggle{ display: inline-flex; align-items:center; justify-content:center; }
+    .sidebar{
+      position: fixed;
+      top: 56px;
+      left: 0;
+      z-index: 40;
+      height: calc(100vh - 56px);
+      transform: translateX(-105%);
+      transition: transform 0.2s ease;
+      box-shadow: 4px 0 16px rgba(0,0,0,0.15);
+    }
+    .sidebar.aberta{ transform: translateX(0); }
+    .conteudo{ padding: 1.75rem 1.25rem 4rem; }
+    .hero h1{ font-size: 1.6rem; }
+    footer.rodape{ padding: 1.5rem 1.25rem 2.5rem; }
+    .overlay{
+      display: none;
+      position: fixed;
+      inset: 56px 0 0 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 35;
+    }
+    .overlay.ativa{ display: block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex; align-items:center; gap:0.75rem;">
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir sumário">☰</button>
+    <a href="../index.html" class="voltar-hub" aria-label="Voltar para a página inicial">← Início</a>
+    <div class="marca">
+      <svg class="marca-simbolo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill="#F4BB2F" d="M 38.561 0 L 38.561 31.761 C 38.561 36.038, 35.418 39.591, 31.32 40.233 C 30.887 40.293, 30.44 40.33, 29.992 40.33 L 0 40.33 L 0 0 Z"/>
+        <path fill="#E61D47" d="M 100 24.088 L 100 35.71 L 54.982 35.71 C 50.056 35.71, 46.025 31.679, 46.025 26.752 L 46.025 0 L 75.913 0 C 82.921 0, 89.259 3.031, 93.67 7.853 C 97.596 12.145, 100 17.855, 100 24.088 Z"/>
+        <path fill="#8AB925" d="M 38.71 56.222 L 38.71 100 L 24.095 100 C 10.846 100, 0 89.154, 0 75.905 L 0 47.645 L 30.141 47.645 C 30.551 47.645, 30.962 47.675, 31.358 47.735 C 35.508 48.324, 38.71 51.907, 38.71 56.222 Z"/>
+        <path fill="#3FA5C3" d="M 100 43.174 L 100 64.104 L 78.323 64.104 C 69.478 64.104, 62.283 71.3, 62.283 80.137 L 62.283 100 L 46.174 100 L 46.174 51.743 C 46.174 47.018, 50.019 43.174, 54.751 43.174 Z"/>
+        <path fill="#765AA3" d="M 78.323 71.568 L 100 71.568 L 100 100 L 69.747 100 L 69.747 80.137 C 69.747 75.412, 73.599 71.568, 78.323 71.568 Z"/>
+      </svg>
+      <span>Plataforma <span class="forte">Semente</span> <span class="produto">— Listagem de Turmas Ativas</span></span>
+    </div>
+  </div>
+  <div class="versao">Versão 1.0</div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <nav>
+      <div class="grupo-titulo">Sumário</div>
+      <ul>
+        <li><a href="#visao-geral" data-nav>1. Visão Geral</a>
+          <ul>
+            <li><a href="#objetivo" data-nav>1.1 Objetivo</a></li>
+            <li><a href="#fluxo-resumido" data-nav>1.2 Fluxo Resumido</a></li>
+            <li><a href="#diagrama-fluxo" data-nav>1.3 Diagrama do Fluxo</a></li>
+          </ul>
+        </li>
+        <li><a href="#pre-requisito" data-nav>2. Pré-requisito: API Key</a></li>
+        <li><a href="#endpoint" data-nav>3. Endpoint</a>
+          <ul>
+            <li><a href="#url-metodo" data-nav>3.1 URL e Método</a></li>
+            <li><a href="#exemplo-requisicao" data-nav>3.2 Exemplo de Requisição</a></li>
+            <li><a href="#resposta-sucesso" data-nav>3.3 Resposta de Sucesso</a></li>
+            <li><a href="#resposta-erro" data-nav>3.4 Resposta de Erro</a></li>
+            <li><a href="#codigos-retorno" data-nav>3.5 Códigos de Retorno</a></li>
+            <li><a href="#rate-limit" data-nav>3.6 Limite de Requisições</a></li>
+          </ul>
+        </li>
+        <li><a href="#pontos-atencao" data-nav>4. Pontos de Atenção</a></li>
+        <li><a href="#exemplos-chamada" data-nav>5. Exemplos de Chamada</a>
+          <ul>
+            <li><a href="#csharp" data-nav>5.1 C# (.NET)</a></li>
+            <li><a href="#python" data-nav>5.2 Python</a></li>
+            <li><a href="#java" data-nav>5.3 Java</a></li>
+            <li><a href="#nodejs" data-nav>5.4 Node.js</a></li>
+            <li><a href="#php" data-nav>5.5 PHP</a></li>
+          </ul>
+        </li>
+        <li><a href="#checklist" data-nav>6. Checklist de Integração</a></li>
+        <li><a href="#faq" data-nav>7. Perguntas Frequentes</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="conteudo">
+
+    <div class="hero">
+      <h1>Listagem de Turmas Ativas — Especificação Técnica</h1>
+      <p class="subtitulo">Plataforma Semente</p>
+      <p class="meta">Versão 1.0 — Documento destinado a parceiros integradores</p>
+    </div>
+
+    <!-- 1. VISÃO GERAL -->
+    <section class="secao" id="visao-geral">
+      <h2>1. Visão Geral</h2>
+
+      <div class="subsecao" id="objetivo">
+        <h3>1.1 Objetivo</h3>
+        <p>Este documento especifica como um sistema parceiro pode consultar, via uma chamada HTTP simples, quais turmas da sua instituição estão ativas na Plataforma Semente — organizadas por série escolar.</p>
+        <p>Esse endpoint é independente do fluxo de <a href="sso.html">SSO</a> e do <a href="cadastro-usuarios.html">Cadastro de Usuários</a> — não é necessário implementar nenhum dos dois para usar esta consulta, e vice-versa. Basta a API Key já cadastrada da instituição, sem necessidade de login de usuário ou token JWT.</p>
+      </div>
+
+      <div class="subsecao" id="fluxo-resumido">
+        <h3>1.2 Fluxo Resumido</h3>
+        <ol class="lista">
+          <li>O parceiro monta uma URL de consulta contendo sua API Key.</li>
+          <li>O backend do parceiro faz uma requisição <code>GET</code> diretamente a esse endpoint — chamada servidor-a-servidor, sem necessidade de partir do navegador do usuário.</li>
+          <li>A Semente valida a API Key e devolve um JSON com as turmas ativas, agrupadas por série escolar.</li>
+        </ol>
+        <div class="callout alerta">
+          <strong>Importante:</strong>
+          Assim como em qualquer integração com API Key, a chamada deve partir do back-end do parceiro. A API Key nunca deve ser exposta no front-end, em aplicativos móveis ou em qualquer código acessível ao usuário final.
+        </div>
+      </div>
+
+      <div class="subsecao" id="diagrama-fluxo">
+        <h3>1.3 Diagrama do Fluxo</h3>
+        <p>O diagrama abaixo ilustra a sequência da integração, sempre servidor-a-servidor entre o back-end do parceiro e a Plataforma Semente:</p>
+
+        <div class="diagrama-wrap">
+          <svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de sequência da Listagem de Turmas Ativas com 3 passos entre Backend do Parceiro e Plataforma Semente, sempre servidor-a-servidor">
+            <defs>
+              <marker id="seta-cinza-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#1A2E3D"/>
+              </marker>
+              <marker id="seta-verde-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#55782C"/>
+              </marker>
+            </defs>
+
+            <!-- Cabeçalhos das raias -->
+            <g font-family="Poppins, sans-serif">
+              <rect x="40" y="20" width="280" height="50" rx="6" fill="#55782C"/>
+              <text x="180" y="52" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="17">Backend do Parceiro</text>
+
+              <rect x="580" y="20" width="280" height="50" rx="6" fill="#55782C"/>
+              <text x="720" y="52" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="17">Plataforma Semente</text>
+            </g>
+
+            <!-- Linhas de vida -->
+            <line x1="180" y1="70" x2="180" y2="410" stroke="#C9C3B4" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <line x1="720" y1="70" x2="720" y2="410" stroke="#C9C3B4" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+            <g font-family="Poppins, sans-serif" font-size="14.5" fill="#333233">
+
+              <!-- Passo 1 -->
+              <rect x="80" y="100" width="200" height="58" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
+              <text x="180" y="123" text-anchor="middle" font-weight="700" font-size="13.5">1. Monta a URL com</text>
+              <text x="180" y="143" text-anchor="middle" font-size="13.5" font-weight="700">a API Key</text>
+
+              <!-- Passo 2 -->
+              <line x1="180" y1="200" x2="714" y2="200" stroke="#1A2E3D" stroke-width="2" marker-end="url(#seta-cinza-t)"/>
+              <text x="450" y="190" text-anchor="middle">2. GET /plataforma-turmas/listaTurmas?apikey=...</text>
+
+              <!-- Passo 3 -->
+              <rect x="620" y="230" width="200" height="70" rx="8" fill="#F2EFE9" stroke="#DCD6C8"/>
+              <text x="720" y="254" text-anchor="middle" font-weight="700" font-size="13">3. Valida a API Key e</text>
+              <text x="720" y="274" text-anchor="middle" font-size="12" fill="#6B6B6A">busca as turmas ativas</text>
+              <text x="720" y="290" text-anchor="middle" font-size="12" fill="#6B6B6A">da instituição</text>
+
+              <!-- Passo 4 -->
+              <line x1="720" y1="340" x2="186" y2="340" stroke="#55782C" stroke-width="2" marker-end="url(#seta-verde-t)"/>
+              <text x="450" y="330" text-anchor="middle">4. 200 — turmas por série | 400 — erro</text>
+            </g>
+
+            <!-- Caixa de nota -->
+            <rect x="40" y="360" width="820" height="80" rx="10" fill="#FBF1DA" stroke="#F4BB2F" stroke-width="1.5"/>
+            <text x="65" y="392" font-family="Poppins, sans-serif" font-size="14.5" font-weight="700" fill="#333233">Se a API Key for ausente ou inválida:</text>
+            <text x="65" y="416" font-family="Poppins, sans-serif" font-size="14" fill="#333233">a Semente responde com 400 e nenhuma lista de turmas é retornada. Veja os códigos na seção 3.5.</text>
+          </svg>
+        </div>
+
+        <p>Caso a API Key seja inválida ou não seja informada, a Semente responde com erro diretamente na chamada — o parceiro deve tratar essa resposta antes de considerar a consulta como concluída.</p>
+      </div>
+    </section>
+
+    <!-- 2. PRÉ-REQUISITO -->
+    <section class="secao" id="pre-requisito">
+      <h2>2. Pré-requisito: API Key</h2>
+      <p>Cada instituição parceira possui uma <strong>API Key</strong> própria, cadastrada pela Semente. É a mesma API Key eventualmente já usada em outras integrações existentes com essa instituição, como o <a href="cadastro-usuarios.html">Cadastro de Usuários</a>.</p>
+      <p>Se você ainda não possui uma API Key para a sua instituição, solicite-a ao time da Semente.</p>
+      <div class="callout info">
+        <strong>A API Key identifica apenas a instituição:</strong>
+        Não um usuário — todo o resultado retornado é sempre relativo às turmas dessa instituição.
+      </div>
+    </section>
+
+    <!-- 3. ENDPOINT -->
+    <section class="secao" id="endpoint">
+      <h2>3. Endpoint</h2>
+
+      <div class="subsecao" id="url-metodo">
+        <h3>3.1 URL e Método</h3>
+        <div class="code-block">
+          <div class="code-header"><span>Endpoint</span></div>
+          <pre><code class="language-http">GET https://integracao.sementeeducacao.com.br/api/v0/plataforma-turmas/listaTurmas?apikey=&lt;API_KEY&gt;</code></pre>
+        </div>
+        <div class="tabela-wrap">
+          <table>
+            <thead>
+              <tr><th>Parâmetro</th><th>Onde</th><th>Obrigatório</th><th>Descrição</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>apikey</code></td><td>query string</td><td>Sim</td><td>API Key da instituição.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsecao" id="exemplo-requisicao">
+        <h3>3.2 Exemplo de Requisição</h3>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>Requisição</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-http">GET https://integracao.sementeeducacao.com.br/api/v0/plataforma-turmas/listaTurmas?apikey=SUA_API_KEY_AQUI</code></pre>
+        </div>
+        <div class="callout info">
+          <strong>Sem headers adicionais:</strong>
+          Não é necessário nenhum header de autenticação adicional (sem <code>Authorization</code>, sem cookies) — a API Key na query string é suficiente.
+        </div>
+      </div>
+
+      <div class="subsecao" id="resposta-sucesso">
+        <h3>3.3 Resposta de Sucesso</h3>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>200 OK</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-json">HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "serieId": 5,
+    "serie": "1º Ano",
+    "descricao": "1º Ano - Ensino Médio",
+    "turmas": [
+      { "turmaId": 101, "nome": "1º A" },
+      { "turmaId": 102, "nome": "1º B" }
+    ]
+  },
+  {
+    "serieId": 6,
+    "serie": "2º Ano",
+    "descricao": "2º Ano - Ensino Médio",
+    "turmas": [
+      { "turmaId": 110, "nome": "2º A" }
+    ]
+  }
+]</code></pre>
+        </div>
+        <ul class="lista">
+          <li>A resposta é uma <strong>lista de séries</strong>, uma entrada por série escolar que tenha ao menos uma turma ativa.</li>
+          <li>Dentro de cada série, <code>turmas</code> é a lista de turmas ativas daquela série, ordenadas por nome.</li>
+          <li>As séries vêm ordenadas conforme a progressão letiva (ex: 1º Ano antes de 2º Ano).</li>
+          <li>Se a instituição não tiver nenhuma turma ativa, a resposta é uma lista vazia: <code>[]</code>.</li>
+          <li>"Turma ativa" significa que a turma existe e não foi removida/desativada na plataforma — turmas excluídas não aparecem na lista.</li>
+        </ul>
+      </div>
+
+      <div class="subsecao" id="resposta-erro">
+        <h3>3.4 Resposta de Erro</h3>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>400 Bad Request</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-json">HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+  "mensagem": "API Key inválida."
+}</code></pre>
+        </div>
+        <p>Outras mensagens possíveis com o mesmo status:</p>
+        <ul class="lista">
+          <li><span class="claim">"API Key não fornecida."</span> — quando o parâmetro <code>apikey</code> está ausente ou vazio na URL.</li>
+          <li><span class="claim">"API Key inválida."</span> — quando a API Key não corresponde a nenhuma instituição cadastrada (ou a instituição está inativa).</li>
+        </ul>
+      </div>
+
+      <div class="subsecao" id="codigos-retorno">
+        <h3>3.5 Códigos de Retorno</h3>
+        <div class="tabela-wrap">
+          <table>
+            <thead>
+              <tr><th>HTTP</th><th>Situação</th><th>Descrição</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="http-status s200">200</td><td>Sucesso</td><td>API Key válida. Retorna a lista de séries com suas turmas ativas (pode ser uma lista vazia).</td></tr>
+              <tr><td class="http-status s400">400</td><td>Requisição inválida</td><td>API Key ausente ou inválida.</td></tr>
+              <tr><td class="http-status s429">429</td><td>Muitas requisições</td><td>Limite de requisições excedido para a API Key. Ver seção 3.6.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsecao" id="rate-limit">
+        <h3>3.6 Limite de Requisições (Rate Limit)</h3>
+        <p>Este endpoint aplica um limite de requisições por API Key: em média <strong>1 requisição por segundo</strong>, com uma pequena folga de burst — no máximo <strong>5 chamadas em uma janela de 5 segundos</strong>.</p>
+        <p>Ao exceder esse limite, a Semente responde com <code>429 Too Many Requests</code>:</p>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>429 Too Many Requests</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-json">HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+
+{
+  "mensagem": "Muitas requisições. Tente novamente em breve."
+}</code></pre>
+        </div>
+        <div class="callout alerta">
+          <strong>Como tratar o 429:</strong>
+          Ao receber esse erro, aguarde cerca de 5 segundos antes de tentar novamente. Evite implementar retries imediatos em loop — isso apenas prolonga o bloqueio e não acelera a resposta.
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. PONTOS DE ATENÇÃO -->
+    <section class="secao" id="pontos-atencao">
+      <h2>4. Pontos de Atenção para a Implementação</h2>
+      <ul class="lista">
+        <li><strong>Chamada servidor-a-servidor:</strong> assim como o <a href="cadastro-usuarios.html">Cadastro de Usuários</a>, esta consulta pode (e deve) ser feita diretamente pelo backend do parceiro — não há necessidade de passar pelo navegador do usuário.</li>
+        <li><strong>A API Key trafega na URL (query string):</strong> evite registrá-la em logs de acesso não protegidos do seu lado, e trate-a como uma credencial sensível, da mesma forma que qualquer outra API Key.</li>
+        <li><strong>Os identificadores (<code>serieId</code>, <code>turmaId</code>) são estáveis</strong> e podem ser usados como referência para vincular turmas em outras integrações com a Semente que também referenciem série/turma.</li>
+        <li><strong>Não é necessário estar autenticado como usuário</strong> para consumir este endpoint — apenas a API Key da instituição é validada.</li>
+      </ul>
+      <div class="callout alerta">
+        <strong>Atenção com a API Key em logs:</strong>
+        Como a API Key é enviada via query string, ela pode acabar registrada em logs de servidores proxy, CDNs ou ferramentas de observabilidade. Configure seu ambiente para não persistir query strings sensíveis em texto claro, quando possível.
+      </div>
+    </section>
+
+    <!-- 5. EXEMPLOS DE CHAMADA -->
+    <section class="secao" id="exemplos-chamada">
+      <h2>5. Exemplos de Chamada</h2>
+      <p>A seguir, exemplos de como montar e enviar a requisição <code>GET</code> nas linguagens mais comuns, usando apenas bibliotecas padrão (sem dependências externas).</p>
+
+      <div class="lang-tabs" role="tablist">
+        <button class="lang-tab ativo" data-lang="csharp">C# (.NET)</button>
+        <button class="lang-tab" data-lang="python">Python</button>
+        <button class="lang-tab" data-lang="java">Java</button>
+        <button class="lang-tab" data-lang="nodejs">Node.js</button>
+        <button class="lang-tab" data-lang="php">PHP</button>
+      </div>
+
+      <div class="lang-panel ativo" id="csharp">
+        <h3 style="margin-top:1.2rem;">5.1 C# (.NET)</h3>
+        <p>Biblioteca: <code>System.Net.Http</code> (nativa, sem dependências adicionais).</p>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>C#</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-csharp">using System.Net.Http;
+
+// apikey é fornecida pela Semente no provisionamento
+string apikey = "SUA_API_KEY_AQUI";
+string url = $"https://integracao.sementeeducacao.com.br/api/v0/plataforma-turmas/listaTurmas?apikey={apikey}";
+
+using var client = new HttpClient();
+var response = await client.GetAsync(url);
+string json = await response.Content.ReadAsStringAsync();</code></pre>
+        </div>
+      </div>
+
+      <div class="lang-panel" id="python">
+        <h3 style="margin-top:1.2rem;">5.2 Python</h3>
+        <p>Biblioteca: <code>requests</code> (<code>pip install requests</code>).</p>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>Python</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-python">import requests
+
+# apikey é fornecida pela Semente no provisionamento
+apikey = "SUA_API_KEY_AQUI"
+url = "https://integracao.sementeeducacao.com.br/api/v0/plataforma-turmas/listaTurmas"
+
+response = requests.get(url, params={"apikey": apikey})
+turmas_por_serie = response.json()</code></pre>
+        </div>
+      </div>
+
+      <div class="lang-panel" id="java">
+        <h3 style="margin-top:1.2rem;">5.3 Java</h3>
+        <p>Biblioteca: <code>java.net.http.HttpClient</code> (nativa a partir do JDK 11).</p>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>Java</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-java">import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+// apikey é fornecida pela Semente no provisionamento
+String apikey = "SUA_API_KEY_AQUI";
+String url = "https://integracao.sementeeducacao.com.br/api/v0/plataforma-turmas/listaTurmas?apikey=" + apikey;
+
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create(url))
+        .GET()
+        .build();
+
+HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());</code></pre>
+        </div>
+      </div>
+
+      <div class="lang-panel" id="nodejs">
+        <h3 style="margin-top:1.2rem;">5.4 Node.js</h3>
+        <p><code>fetch</code> nativo (Node.js 18+, sem dependências adicionais).</p>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>Node.js</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-javascript">// apikey é fornecida pela Semente no provisionamento
+const apikey = "SUA_API_KEY_AQUI";
+const url = `https://integracao.sementeeducacao.com.br/api/v0/plataforma-turmas/listaTurmas?apikey=${apikey}`;
+
+const response = await fetch(url);
+const turmasPorSerie = await response.json();</code></pre>
+        </div>
+      </div>
+
+      <div class="lang-panel" id="php">
+        <h3 style="margin-top:1.2rem;">5.5 PHP</h3>
+        <p>Extensão: <code>curl</code> (nativa em praticamente qualquer instalação PHP).</p>
+        <div class="code-block" data-copy>
+          <div class="code-header"><span>PHP</span><button class="copy-btn" data-copy-btn>Copiar</button></div>
+          <pre><code class="language-php">&lt;?php
+
+// apikey é fornecida pela Semente no provisionamento
+$apikey = "SUA_API_KEY_AQUI";
+$url = "https://integracao.sementeeducacao.com.br/api/v0/plataforma-turmas/listaTurmas?apikey=" . urlencode($apikey);
+
+$ch = curl_init($url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+$turmasPorSerie = json_decode($response, true);</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CHECKLIST -->
+    <section class="secao" id="checklist">
+      <h2>6. Checklist de Integração</h2>
+      <ul class="checklist">
+        <li><input type="checkbox" id="chk1"><label for="chk1">Obtive a API Key da instituição junto ao time da Semente (caso ainda não a possuísse) — seção 2.</label></li>
+        <li><input type="checkbox" id="chk2"><label for="chk2">Implementei a chamada <code>GET</code> ao endpoint, passando a API Key na query string — seção 3.1.</label></li>
+        <li><input type="checkbox" id="chk3"><label for="chk3">Tratei a resposta de sucesso (200), incluindo o caso de lista vazia (instituição sem turmas ativas) — seção 3.3.</label></li>
+        <li><input type="checkbox" id="chk4"><label for="chk4">Tratei o erro 400 (API Key ausente ou inválida) com uma mensagem adequada no meu sistema — seção 3.4.</label></li>
+        <li><input type="checkbox" id="chk5"><label for="chk5">Tratei o erro 429 (limite de requisições excedido), aguardando cerca de 5 segundos antes de tentar novamente, sem retries imediatos em loop — seção 3.6.</label></li>
+        <li><input type="checkbox" id="chk6"><label for="chk6">A chamada parte do back-end do parceiro, nunca do front-end ou de código acessível ao usuário final — seção 4.</label></li>
+        <li><input type="checkbox" id="chk7"><label for="chk7">Confirmei que meus logs não expõem a API Key em texto claro — seção 4.</label></li>
+      </ul>
+    </section>
+
+    <!-- 7. FAQ -->
+    <section class="secao" id="faq">
+      <h2>7. Perguntas Frequentes</h2>
+
+      <div class="faq-item">
+        <button class="faq-pergunta"><span>Preciso implementar SSO ou o Cadastro de Usuários para usar esse endpoint?</span><span class="seta">▾</span></button>
+        <div class="faq-resposta"><div class="faq-resposta-inner">Não. Este endpoint é independente das demais integrações — basta possuir a API Key da instituição já cadastrada com a Semente.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-pergunta"><span>A mesma API Key usada no Cadastro de Usuários funciona aqui?</span><span class="seta">▾</span></button>
+        <div class="faq-resposta"><div class="faq-resposta-inner">Sim. É a mesma API Key da instituição, eventualmente já usada em outras integrações existentes.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-pergunta"><span>O que acontece se a instituição não tiver nenhuma turma ativa?</span><span class="seta">▾</span></button>
+        <div class="faq-resposta"><div class="faq-resposta-inner">A resposta é 200 com uma lista vazia (<code>[]</code>), e não um erro.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-pergunta"><span>As turmas retornadas incluem turmas já excluídas ou desativadas?</span><span class="seta">▾</span></button>
+        <div class="faq-resposta"><div class="faq-resposta-inner">Não. Apenas turmas ativas são retornadas — turmas excluídas ou desativadas na plataforma não aparecem na lista.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-pergunta"><span>Posso usar <code>serieId</code> e <code>turmaId</code> como referência em outras integrações?</span><span class="seta">▾</span></button>
+        <div class="faq-resposta"><div class="faq-resposta-inner">Sim. Esses identificadores são estáveis e podem ser usados para vincular turmas em outras integrações com a Semente que também referenciem série/turma.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-pergunta"><span>Qual é o limite de requisições desse endpoint?</span><span class="seta">▾</span></button>
+        <div class="faq-resposta"><div class="faq-resposta-inner">Em média 1 requisição por segundo por API Key, com uma folga de burst de até 5 chamadas em uma janela de 5 segundos. Ao exceder esse limite, a resposta é <code>429 Too Many Requests</code> — aguarde cerca de 5 segundos antes de tentar novamente (seção 3.6).</div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-pergunta"><span>Como reporto um problema de integração?</span><span class="seta">▾</span></button>
+        <div class="faq-resposta"><div class="faq-resposta-inner">Entre em contato com o time técnico da Semente através do canal combinado no momento do provisionamento da API Key.</div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="rodape">
+  Plataforma Semente — Listagem de Turmas Ativas — Especificação Técnica v1.0. Documento destinado a parceiros integradores.
+</footer>
+
+<script>
+  //hljs.highlightAll();
+
+  // Botões de copiar
+  function copiarTexto(text){
+    if(navigator.clipboard && window.isSecureContext){
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function(resolve, reject){
+      var textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try{
+        document.execCommand('copy') ? resolve() : reject(new Error('execCommand falhou'));
+      }catch(e){
+        reject(e);
+      }finally{
+        document.body.removeChild(textarea);
+      }
+    });
+  }
+
+  document.querySelectorAll('[data-copy-btn]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var block = btn.closest('.code-block');
+      var codeEl = block.querySelector('code');
+      var text = codeEl.innerText;
+      var original = btn.textContent;
+      copiarTexto(text).then(function(){
+        btn.textContent = 'Copiado!';
+        btn.classList.add('copiado');
+      }).catch(function(){
+        btn.textContent = 'Falha ao copiar';
+      }).finally(function(){
+        setTimeout(function(){
+          btn.textContent = original;
+          btn.classList.remove('copiado');
+        }, 1800);
+      });
+    });
+  });
+
+  // Abas de linguagem (seção 5)
+  var tabs = document.querySelectorAll('.lang-tab');
+  var panels = document.querySelectorAll('.lang-panel');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('ativo'); });
+      panels.forEach(function(p){ p.classList.remove('ativo'); });
+      tab.classList.add('ativo');
+      document.getElementById(tab.dataset.lang).classList.add('ativo');
+    });
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-pergunta').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.faq-item');
+      var resposta = item.querySelector('.faq-resposta');
+      var abrindo = !item.classList.contains('aberto');
+      item.classList.toggle('aberto');
+      resposta.style.maxHeight = abrindo ? resposta.scrollHeight + 'px' : null;
+    });
+  });
+
+  // Menu mobile
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('overlay');
+  var menuToggle = document.getElementById('menuToggle');
+  function fecharMenu(){
+    sidebar.classList.remove('aberta');
+    overlay.classList.remove('ativa');
+  }
+  menuToggle.addEventListener('click', function(){
+    sidebar.classList.toggle('aberta');
+    overlay.classList.toggle('ativa');
+  });
+  overlay.addEventListener('click', fecharMenu);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', fecharMenu);
+  });
+
+  // Scrollspy: destaca item ativo do sumário
+  var navLinks = Array.from(document.querySelectorAll('[data-nav]'));
+  var alvos = navLinks.map(function(a){
+    return document.querySelector(a.getAttribute('href'));
+  }).filter(Boolean);
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var id = '#' + entry.target.id;
+      var link = navLinks.find(function(a){ return a.getAttribute('href') === id; });
+      if(!link) return;
+      if(entry.isIntersecting){
+        navLinks.forEach(function(a){ a.classList.remove('ativo'); });
+        link.classList.add('ativo');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+
+  alvos.forEach(function(el){ observer.observe(el); });
+</script>
+
+</body>
+</html>
